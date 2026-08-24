@@ -3,6 +3,7 @@
 A personal finance manager that uses Artificial Intelligence (Google Gemini) to record, interpret, and categorize your expenses automatically through plain text.
 
 > **Note:** Since the backend is hosted on Render's free tier, the server goes into sleep mode when inactive. Please allow about 50 seconds for the server to spin up on your first request!
+
 🌍 **Access the project online:** [Click here to access FinanceAI](https://finance-ai-pi-six.vercel.app/)
 
 ![FinanceAI Preview](./assets/preview.png)
