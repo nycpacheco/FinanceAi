@@ -22,6 +22,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def home():
+    return {"status": "API FinanceAI rodando com sucesso!"}
+
 # Função para conectar ao banco de dados em cada requisição
 def get_db():
     db = SessionLocal()
