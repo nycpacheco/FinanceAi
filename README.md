@@ -6,6 +6,8 @@ Um gerenciador de finanças pessoais que utiliza Inteligência Artificial (Googl
 
 🌍 **Acesse o projeto online:** [Clique aqui para acessar o FinanceAI](https://finance-ai-pi-six.vercel.app/)
 
+## Demonstração do FinanceAI
+
 ![Demonstração do FinanceAI](./assets/preview.png)
 
 ---
