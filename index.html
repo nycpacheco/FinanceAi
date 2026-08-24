@@ -499,7 +499,14 @@
               <p class="font-bold text-slate-200">${t.descricao}</p>
               <span class="text-[10px] text-violet-400 font-medium">${t.categoria}</span>
             </div>
-            <span class="font-extrabold ${corValor}">${sinal} R$ ${parseFloat(t.valor).toFixed(2)}</span>
+            
+            <div class="flex items-center gap-3">
+              <span class="font-extrabold ${corValor}">${sinal} R$ ${parseFloat(t.valor).toFixed(2)}</span>
+              
+              <button onclick="deletarTransacao(${t.id})" class="text-slate-500 hover:text-rose-500 transition-colors text-sm" title="Apagar">
+                🗑️
+              </button>
+            </div>
           </div>
         `;
       }).join('');
@@ -598,6 +605,26 @@
       btnIA.disabled = false;
     }
   }
+
+  async function deletarTransacao(transacaoId) {
+    // Pede confirmação antes de apagar
+    if (!confirm("Tem certeza que deseja apagar este lançamento?")) return;
+
+    try {
+        const response = await fetch(`https://financeai-lbxp.onrender.com/usuarios/${USUARIO_ID}/transacoes/${transacaoId}/`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            // Atualiza a lista na tela para a transação sumir
+            carregarTransacoes(); // Use o nome da sua função que recarrega a lista
+        } else {
+            alert("Erro ao apagar o lançamento.");
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+    }
+}
 </script>
 </body>
 </html>

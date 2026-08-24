@@ -144,3 +144,21 @@ def resetar_dados(db: Session = Depends(get_db)):
         db.rollback()
         print(f"ERRO GRAVE AO RESETAR: {str(e)}") 
         raise HTTPException(status_code=500, detail="Erro interno ao apagar dados.")
+
+
+@app.delete("/usuarios/{usuario_id}/transacoes/{transacao_id}/")
+def deletar_transacao(usuario_id: int, transacao_id: int, db: Session = Depends(get_db)):
+    # Correção: usar models.Transacao
+    transacao = db.query(models.Transacao).filter(
+        models.Transacao.id == transacao_id, 
+        models.Transacao.usuario_id == usuario_id
+    ).first()
+    
+    if not transacao:
+        raise HTTPException(status_code=404, detail="Transação não encontrada")
+    
+    # Apaga do banco e salva
+    db.delete(transacao)
+    db.commit()
+    
+    return {"mensagem": "Lançamento apagado com sucesso!"}
