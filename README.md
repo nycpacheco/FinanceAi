@@ -1,10 +1,10 @@
-# 💸 FinanceAI - Gestor Financeiro Inteligente
+# FinanceAI - Gestor Financeiro Inteligente
 
 Um gerenciador de finanças pessoais que utiliza Inteligência Artificial (Google Gemini) para registrar, interpretar e categorizar seus gastos automaticamente através de texto livre.
 
 > **Nota**: Como o backend está hospedado no plano gratuito do Render, o servidor entra em modo de espera quando fica inativo. Por favor, aguarde cerca de 50 segundos para que o servidor inicie no seu primeiro acesso!
 
-🌍 **Acesse o projeto online:** [Clique aqui para acessar o FinanceAI](https://finance-ai-pi-six.vercel.app/)
+**Acesse o projeto online:** [Clique aqui para acessar o FinanceAI](https://finance-ai-pi-six.vercel.app/)
 
 ## Demonstração do FinanceAI
 
@@ -12,7 +12,7 @@ Um gerenciador de finanças pessoais que utiliza Inteligência Artificial (Googl
 
 ---
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 **Frontend:**
 * HTML5, CSS3 & JavaScript puro
@@ -28,7 +28,7 @@ Um gerenciador de finanças pessoais que utiliza Inteligência Artificial (Googl
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 * **Registro via IA:** Digite "Gastei 50 no mercado hoje" e a IA categoriza, extrai o valor e salva automaticamente.
 * **Dashboard Dinâmico:** Visualização de receitas, despesas e saldo atualizado em tempo real.
@@ -36,7 +36,7 @@ Um gerenciador de finanças pessoais que utiliza Inteligência Artificial (Googl
 * **Gerenciamento de Lançamentos:** Exclusão rápida de transações com atualização instantânea da interface.
 
 ---
-## 📖 Como Usar a Aplicação
+## Como Usar a Aplicação
 
 O fluxo do FinanceAI foi pensado para ser simples e direto, focado na experiência do usuário:
 
@@ -62,7 +62,7 @@ O fluxo do FinanceAI foi pensado para ser simples e direto, focado na experiênc
 
 ---
 
-## 📋 Pré-requisitos (Requirements)
+## Pré-requisitos (Requirements)
 
 Para rodar este projeto localmente, você precisará de:
 * Python 3.10 ou superior instalado.
@@ -71,7 +71,7 @@ Para rodar este projeto localmente, você precisará de:
 
 ---
 
-## 🔧 Como Rodar Localmente
+## Como Rodar Localmente
 
 **1. Clone o repositório:**
 ```bash
@@ -110,7 +110,7 @@ Como o frontend é estático (HTML/JS), basta abrir o arquivo `index.html` diret
 
 ---
 
-## ✒️ Autor
+## Autor
 
 Desenvolvido por **Nycolas Pacheco**!
 
