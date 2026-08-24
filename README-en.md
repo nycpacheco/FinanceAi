@@ -1,16 +1,17 @@
-# 💸 FinanceAI - Smart Financial Manager
+# FinanceAI - Smart Financial Manager
 
 A personal finance manager that uses Artificial Intelligence (Google Gemini) to record, interpret, and categorize your expenses automatically through plain text.
 
 > **Note:** Since the backend is hosted on Render's free tier, the server goes into sleep mode when inactive. Please allow about 50 seconds for the server to spin up on your first request!
 
-🌍 **Access the project online:** [Click here to access FinanceAI](https://finance-ai-pi-six.vercel.app/)
+**Access the project online:** [Click here to access FinanceAI](https://finance-ai-pi-six.vercel.app/)
 
+## FinanceAI Preview
 ![FinanceAI Preview](./assets/preview.png)
 
 ---
 
-## 🚀 Technologies Used
+## Technologies Used
 
 **Frontend:**
 * HTML5, CSS3 & vanilla JavaScript
@@ -26,7 +27,7 @@ A personal finance manager that uses Artificial Intelligence (Google Gemini) to 
 
 ---
 
-## ✨ Features
+## Features
 
 * **AI Recording:** Type "I spent 50 at the grocery store today" and the AI automatically categorizes it, extracts the amount, and saves it.
 * **Dynamic Dashboard:** Real-time visualization of income, expenses, and current balance.
@@ -34,7 +35,7 @@ A personal finance manager that uses Artificial Intelligence (Google Gemini) to 
 * **Transaction Management:** Quick deletion of transactions with instant interface updates.
 
 ---
-## 📖 How to Use the Application
+## How to Use the Application
 
 The FinanceAI workflow was designed to be simple and direct, focusing on the user experience:
 
@@ -60,7 +61,7 @@ The FinanceAI workflow was designed to be simple and direct, focusing on the use
 
 ---
 
-## 📋 Prerequisites (Requirements)
+## Prerequisites (Requirements)
 
 To run this project locally, you will need:
 * Python 3.10 or higher installed.
@@ -69,7 +70,7 @@ To run this project locally, you will need:
 
 ---
 
-## 🔧 How to Run Locally
+## How to Run Locally
 
 **1. Clone the repository:**
 ```bash
@@ -108,7 +109,7 @@ Since the frontend is static (HTML/JS), just open the `index.html` file directly
 
 ---
 
-## ✒️ Author
+## Author
 
 Developed by **Nycolas Pacheco**!
 
