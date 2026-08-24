@@ -2,6 +2,8 @@
 
 Um gerenciador de finanças pessoais que utiliza Inteligência Artificial (Google Gemini) para registrar, interpretar e categorizar seus gastos automaticamente através de texto livre.
 
+> **Nota**: Como o backend está hospedado no plano gratuito do Render, o servidor entra em modo de espera quando fica inativo. Por favor, aguarde cerca de 50 segundos para que o servidor inicie no seu primeiro acesso!
+
 🌍 **Acesse o projeto online:** [Clique aqui para acessar o FinanceAI](https://finance-ai-pi-six.vercel.app/)
 
 ![Demonstração do FinanceAI](./assets/preview.png)
