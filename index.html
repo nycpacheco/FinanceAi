@@ -607,7 +607,6 @@
   }
 
   async function deletarTransacao(transacaoId) {
-    // Pede confirmação antes de apagar
     if (!confirm("Tem certeza que deseja apagar este lançamento?")) return;
 
     try {
@@ -616,8 +615,8 @@
         });
 
         if (response.ok) {
-            // Atualiza a lista na tela para a transação sumir
-            carregarTransacoes(); // Use o nome da sua função que recarrega a lista
+            // AQUI ESTÁ O SEGREDO: recarrega todos os dados e atualiza a tela instantaneamente!
+            await carregarDadosCompletos();
         } else {
             alert("Erro ao apagar o lançamento.");
         }
