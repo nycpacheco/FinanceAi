@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinanceAi - Orçamento Dinâmico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Space Grotesk"', 'sans-serif'],
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.35); border-radius: 999px; }
+    @keyframes floatSlow { 0%,100% { transform: translate(0,0); } 50% { transform: translate(20px,-30px); } }
+    .animate-float-slow { animation: floatSlow 12s ease-in-out infinite; }
+    .animate-float-slow-rev { animation: floatSlow 15s ease-in-out infinite reverse; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased relative overflow-x-hidden">
+
+  <!-- AMBIENT BACKGROUND MESH -->
+  <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-[32rem] h-[32rem] bg-violet-600/20 rounded-full blur-[120px] animate-float-slow"></div>
+    <div class="absolute top-1/3 -right-40 w-[28rem] h-[28rem] bg-indigo-600/15 rounded-full blur-[120px] animate-float-slow-rev"></div>
+    <div class="absolute bottom-0 left-1/4 w-[24rem] h-[24rem] bg-fuchsia-600/10 rounded-full blur-[120px] animate-float-slow"></div>
+  </div>
+
+  <!-- MODAL DE PRIMEIRO ACESSO -->
+  <div id="modalCadastro" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md hidden p-4">
+    <div class="relative w-full max-w-md">
+      <div class="absolute -inset-[1px] bg-gradient-to-br from-violet-500 via-fuchsia-500/60 to-indigo-500 rounded-3xl blur-sm opacity-70"></div>
+      <div class="relative bg-slate-950 border border-white/10 p-8 rounded-3xl shadow-2xl">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30 mb-5">
+          <i class="ph ph-hand-waving text-2xl text-white"></i>
+        </div>
+        <h2 class="font-display text-3xl font-bold text-white mb-2 tracking-tight">Bem-vindo(a)!</h2>
+        <p class="text-slate-400 text-sm mb-7 leading-relaxed">Parece que o seu banco de dados está novinho. Vamos criar seu perfil para começar.</p>
+
+        <form onsubmit="criarUsuario(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Como quer ser chamado?</label>
+            <input type="text" id="nomeNovo" required placeholder="Seu nome" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white placeholder-slate-600 outline-none focus:border-violet-500 focus:bg-white/[0.07] transition-all">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Seu e-mail</label>
+            <input type="email" id="emailNovo" required placeholder="email@exemplo.com" class="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-white placeholder-slate-600 outline-none focus:border-violet-500 focus:bg-white/[0.07] transition-all">
+          </div>
+          <button type="submit" id="btnCriarUser" class="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all mt-2 flex justify-center items-center shadow-lg shadow-violet-500/25">
+            Começar meu Orçamento
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="relative z-10 w-full max-w-[95%] mx-auto space-y-8 pb-16 p-4">
+
+    <header class="px-6 py-5 bg-slate-950/70 backdrop-blur-xl border-b border-white/5 flex justify-between items-center sticky top-0 z-40">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/30">
+          <i class="ph ph-wallet text-xl text-white"></i>
+        </div>
+        <div>
+          <h1 class="font-display text-xl font-bold text-white tracking-tight leading-none">FinanceAI</h1>
+          <p class="text-[10px] font-mono uppercase tracking-widest text-violet-400/80 mt-1">Inteligência Financeira</p>
+        </div>
+      </div>
+
+      <button onclick="confirmarReset()" class="flex items-center gap-1.5 text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-2 rounded-lg transition-all border border-rose-500/20">
+        <i class="ph ph-trash text-sm"></i>
+        <span class="hidden sm:inline">Começar do Zero</span>
+      </button>
+    </header>
+
+    <div class="px-4 sm:px-0 grid grid-cols-1 lg:grid-cols-[5fr_4fr] gap-8 lg:items-start">
+
+      <!-- PAINEL 1: PLANEJAMENTO E PROGRESSO -->
+      <section class="bg-white/[0.03] backdrop-blur-xl rounded-3xl p-4 sm:p-5 border border-white/10 shadow-2xl shadow-black/40 space-y-2">
+        <div class="border-b border-white/10 pb-4 flex justify-between items-start gap-3">
+          <div>
+            <span class="font-mono text-[11px] uppercase tracking-widest text-violet-400/70">Etapa 01</span>
+            <h2 class="font-display text-xl sm:text-2xl font-bold text-white tracking-tight mt-1">Planejamento Mensal</h2>
+            <p class="text-sm text-slate-400 mt-1">Defina suas metas e acompanhe o consumo acumulado.</p>
+          </div>
+          <span id="statusPlanejamento" class="shrink-0 text-xs bg-amber-500/20 text-amber-400 font-bold px-3 py-1 rounded-full border border-amber-500/30">
+            Não Salvo
+          </span>
+        </div>
+
+        <!-- BANNER DE FECHAMENTO DA CONTA -->
+        <div id="bannerFechamento" class="hidden p-4 rounded-xl border flex flex-col md:flex-row justify-between items-center gap-2">
+          <div>
+            <p id="tituloFechamento" class="font-bold text-sm">...</p>
+            <p id="descFechamento" class="text-xs text-slate-300">...</p>
+            <p id="tagReceitaExtra" class="hidden text-[11px] font-semibold text-emerald-400 mt-1 bg-emerald-950/80 px-2 py-0.5 rounded w-fit border border-emerald-500/30"></p>
+          </div>
+          <div class="text-right">
+            <p id="valorFechamento" class="text-2xl font-black font-mono">R$ 0,00</p>
+          </div>
+        </div>
+
+        <!-- CARDS DA REGRA 50/30/20 -->
+        <div id="cardsAnalise" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Necessidades (50%) -->
+          <div id="cardNecessidades" class="p-5 rounded-2xl bg-gradient-to-b from-white/[0.05] to-white/[0.01] border border-white/10 space-y-3 shadow-lg shadow-black/30">
+            <div class="flex justify-between items-center">
+              <span class="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+                <i class="ph ph-house-line text-amber-400"></i> Necessidades (≤50%)
+              </span>
+              <span id="badgeNec" class="text-[10px] font-bold px-2 py-0.5 rounded"></span>
+            </div>
+            <p id="valNec" class="text-lg font-extrabold text-amber-400 font-mono">R$ 0,00</p>
+            <p id="progNec" class="text-xs text-slate-400">Gasto: R$ 0 / Meta: R$ 0</p>
+            <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden">
+              <div id="barNec" class="bg-gradient-to-r from-amber-500 to-amber-300 h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Desejos (30%) -->
+          <div id="cardDesejos" class="p-5 rounded-2xl bg-gradient-to-b from-white/[0.05] to-white/[0.01] border border-white/10 space-y-3 shadow-lg shadow-black/30">
+            <div class="flex justify-between items-center">
+              <span class="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+                <i class="ph ph-shopping-bag-open text-blue-400"></i> Desejos (≤30%)
+              </span>
+              <span id="badgeDes" class="text-[10px] font-bold px-2 py-0.5 rounded"></span>
+            </div>
+            <p id="valDes" class="text-lg font-extrabold text-blue-400 font-mono">R$ 0,00</p>
+            <p id="progDes" class="text-xs text-slate-400">Gasto: R$ 0 / Meta: R$ 0</p>
+            <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden">
+              <div id="barDes" class="bg-gradient-to-r from-blue-500 to-blue-300 h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Futuro (20%) -->
+          <div id="cardFuturo" class="p-5 rounded-2xl bg-gradient-to-b from-white/[0.05] to-white/[0.01] border border-white/10 space-y-3 shadow-lg shadow-black/30">
+            <div class="flex justify-between items-center">
+              <span class="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+                <i class="ph ph-piggy-bank text-purple-400"></i> Futuro (≥20%)
+              </span>
+              <span id="badgeFut" class="text-[10px] font-bold px-2 py-0.5 rounded"></span>
+            </div>
+            <p id="valFut" class="text-lg font-extrabold text-purple-400 font-mono">R$ 0,00</p>
+            <p id="progFut" class="text-xs text-slate-400">Guardado: R$ 0 / Meta: R$ 0</p>
+            <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden">
+              <div id="barFut" class="bg-gradient-to-r from-purple-500 to-purple-300 h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulário de Entrada -->
+        <form id="setupForm" class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2 border-t border-white/10">
+
+          <!-- 👑 CAMPO DE RECEITA (DESTAQUE MÁXIMO) -->
+          <div class="md:col-span-2 relative">
+            <div class="absolute -inset-[1px] bg-gradient-to-r from-violet-500 via-fuchsia-500 to-indigo-500 rounded-2xl opacity-40 blur-[2px]"></div>
+            <div class="relative bg-slate-950/90 p-4 rounded-2xl border border-violet-500/20">
+              <div class="flex items-center gap-1.5 mb-3">
+                <label class="block text-base font-bold text-violet-300 font-display">Salário / Receita Principal</label>
+                <div class="relative group flex items-center">
+                  <i class="ph ph-info text-slate-500 cursor-help hover:text-violet-300 transition-colors"></i>
+                  <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-52 p-2.5 bg-slate-900 text-xs text-slate-300 rounded-lg shadow-xl border border-white/10 z-50 text-center font-normal">
+                    Coloque aqui o seu salário líquido (o que realmente cai na conta) ou sua renda média mensal.
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-slate-900"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-violet-400/60 font-black text-xl font-mono">R$</span>
+                <input type="number" id="inputReceita" placeholder="0,00" class="w-full bg-slate-900/60 border border-white/10 rounded-xl py-2 pl-14 pr-4 text-white text-xl font-black font-mono outline-none focus:border-violet-400 focus:bg-slate-900 transition-all">
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-2 flex items-center gap-4 py-1">
+            <div class="h-px bg-white/10 flex-1"></div>
+            <span class="text-[11px] font-mono font-semibold text-slate-500 uppercase tracking-widest">Distribuição 50 / 30 / 20</span>
+            <div class="h-px bg-white/10 flex-1"></div>
+          </div>
+
+          <!-- DESPESA FIXA -->
+          <div>
+            <div class="flex items-center gap-1 mb-1.5">
+              <label class="block text-sm font-medium text-slate-300">Despesas Fixas (50%)</label>
+              <div class="relative group flex items-center">
+                <i class="ph ph-info text-slate-500 cursor-help hover:text-violet-400 transition-colors"></i>
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-52 p-2.5 bg-slate-900 text-xs text-slate-300 rounded-lg shadow-xl border border-white/10 z-50 text-center">
+                  O essencial para viver: Aluguel, contas, mercado básico e farmácia.
+                  <div class="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-slate-900"></div>
+                </div>
+              </div>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-bold font-mono text-sm">R$</span>
+              <input type="number" id="inputNecessidades" placeholder="0" class="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-3 px-4 text-white font-mono outline-none focus:border-violet-500 focus:bg-white/[0.07] transition-all">
+            </div>
+          </div>
+
+          <!-- DESPESAS VARIÁVEIS -->
+          <div>
+            <div class="flex items-center gap-1 mb-1.5">
+              <label class="block text-sm font-medium text-slate-300">Despesas Variáveis</label>
+              <div class="relative group flex items-center">
+                <i class="ph ph-info text-slate-500 cursor-help hover:text-violet-400 transition-colors"></i>
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-52 p-2.5 bg-slate-900 text-xs text-slate-300 rounded-lg shadow-xl border border-white/10 z-50 text-center">
+                  Essenciais que mudam de valor: gasolina, conta de luz, transporte.
+                  <div class="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-slate-900"></div>
+                </div>
+              </div>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-bold font-mono text-sm">R$</span>
+              <input type="number" id="inputVariaveis" placeholder="0" class="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-4 pl-10 pr-3 text-white font-mono outline-none focus:border-violet-500 focus:bg-white/[0.07] transition-all">
+            </div>
+          </div>
+
+          <!-- LAZER -->
+          <div>
+            <div class="flex items-center gap-1 mb-1.5">
+              <label class="block text-sm font-medium text-slate-300">Desejos (30%)</label>
+              <div class="relative group flex items-center">
+                <i class="ph ph-info text-slate-500 cursor-help hover:text-violet-400 transition-colors"></i>
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-52 p-2.5 bg-slate-900 text-xs text-slate-300 rounded-lg shadow-xl border border-white/10 z-50 text-center">
+                  Para você curtir: Ifood, assinaturas, roupas e passeios.
+                  <div class="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-slate-900"></div>
+                </div>
+              </div>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-bold font-mono text-sm">R$</span>
+              <input type="number" id="inputDesejos" placeholder="0" class="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-4 pl-10 pr-3 text-white font-mono outline-none focus:border-violet-500 focus:bg-white/[0.07] transition-all">
+            </div>
+          </div>
+
+          <!-- INVESTIMENTOS -->
+          <div>
+            <div class="flex items-center gap-1 mb-1.5">
+              <label class="block text-sm font-medium text-slate-300">Investimentos (20%)</label>
+              <div class="relative group flex items-center">
+                <i class="ph ph-info text-slate-500 cursor-help hover:text-violet-400 transition-colors"></i>
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-52 p-2.5 bg-slate-900 text-xs text-slate-300 rounded-lg shadow-xl border border-white/10 z-50 text-center">
+                  Reserva de emergência, poupança ou tesouro direto.
+                  <div class="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-slate-900"></div>
+                </div>
+              </div>
+            </div>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-bold font-mono text-sm">R$</span>
+              <input type="number" id="inputInvestimentos" placeholder="0" class="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-4 pl-10 pr-3 text-white font-mono outline-none focus:border-violet-500 focus:bg-white/[0.07] transition-all">
+            </div>
+          </div>
+
+          <button type="button" onclick="salvarPlanejamento()" class="md:col-span-2 bg-white/[0.06] hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all mt-1 border border-white/10 shadow-lg hover:shadow-xl hover:border-violet-500/30">
+            Salvar / Atualizar Planejamento
+          </button>
+        </form>
+      </section>
+
+      <!-- PAINEL 2: ASSISTENTE DE BOLSO (IA) -->
+      <section class="relative rounded-3xl p-6 sm:p-7 border border-violet-500/20 shadow-2xl shadow-violet-950/40 space-y-6 overflow-hidden bg-gradient-to-br from-violet-950/40 via-slate-950/60 to-indigo-950/30 backdrop-blur-xl">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-violet-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div class="relative flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-violet-500/30 shrink-0">
+            <i class="ph ph-sparkle text-lg text-white"></i>
+          </div>
+          <div>
+            <span class="font-mono text-[11px] uppercase tracking-widest text-violet-400/70">Etapa 02</span>
+            <h2 class="font-display text-xl font-bold text-white tracking-tight leading-tight">Lançamentos via IA</h2>
+          </div>
+        </div>
+        <p class="relative text-sm text-slate-400 -mt-3">Escreva o que você gastou ou ganhou hoje.</p>
+
+        <div class="relative flex flex-col md:flex-row gap-3">
+          <div class="relative flex-1">
+            <i class="ph ph-terminal absolute left-4 top-1/2 -translate-y-1/2 text-violet-400/60"></i>
+            <input type="text" id="textoIA" placeholder="Ex: Ganhei 50 reais de um freela ou Gastei 30 no almoço" class="w-full bg-slate-950/70 border border-violet-500/30 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder-slate-600 font-mono text-sm outline-none focus:border-violet-400 focus:shadow-[0_0_0_3px_rgba(139,92,246,0.15)] transition-all">
+          </div>
+          <button type="button" onclick="enviarIA()" id="btnIA" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all flex items-center justify-center min-w-[120px] shadow-lg shadow-violet-500/25">
+            <span>Enviar</span>
+          </button>
+        </div>
+
+        <div class="relative border-t border-white/10 pt-4">
+          <h3 class="text-sm font-bold text-slate-300 mb-3 flex justify-between items-center">
+            <span class="flex items-center gap-1.5"><i class="ph ph-clock-counter-clockwise text-violet-400"></i> Histórico de Lançamentos</span>
+            <span id="qtdTransacoes" class="text-xs font-normal font-mono text-slate-500">(0 lançamentos)</span>
+          </h3>
+          <div id="listaTransacoes" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+            <p class="text-xs text-slate-500 italic">Nenhum lançamento registrado ainda.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+  let USUARIO_ID = null;
+
+  async function inicializarApp() {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/usuarios/primeiro/');
+      
+      if (response.ok) {
+        const user = await response.json();
+        USUARIO_ID = user.id;
+        document.querySelector("header p").textContent = `Bem-vindo(a) de volta, ${user.nome}`;
+        await carregarDadosCompletos();
+      } else if (response.status === 404) {
+        document.getElementById('modalCadastro').classList.remove('hidden');
+      }
+    } catch (err) {
+      console.error("Erro ao conectar com a API (Backend pode estar desligado):", err);
+    }
+  }
+
+  async function criarUsuario(event) {
+    event.preventDefault();
+    const btn = document.getElementById('btnCriarUser');
+    btn.innerHTML = `<span class="animate-pulse">Criando...</span>`;
+    
+    const nome = document.getElementById('nomeNovo').value;
+    const email = document.getElementById('emailNovo').value;
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/usuarios/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, email })
+      });
+
+      if (response.ok) {
+        const newUser = await response.json();
+        USUARIO_ID = newUser.id;
+        
+        document.getElementById('modalCadastro').classList.add('hidden');
+        document.querySelector("header p").textContent = `Rastreador de Orçamento - ${newUser.nome}`;
+        
+        await carregarDadosCompletos();
+      }
+    } catch (err) {
+      console.error("Erro ao criar usuário", err);
+      alert("Erro ao criar perfil. Verifique se o backend está rodando.");
+    } finally {
+      btn.innerHTML = `Começar meu Orçamento`;
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', inicializarApp);
+
+  function renderizarAnalise(metas, analise, transacoes = []) {
+    if (!metas || metas.length === 0) return;
+
+    const mapaInputs = {
+      'Receita': 'inputReceita',
+      'Despesa Fixa': 'inputNecessidades',
+      'Despesa Variável': 'inputVariaveis',
+      'Despesa Adicional': 'inputDesejos',
+      'Investimento': 'inputInvestimentos'
+    };
+
+    metas.forEach(m => {
+      if (mapaInputs[m.categoria]) {
+        document.getElementById(mapaInputs[m.categoria]).value = m.valor_limite;
+      }
+    });
+
+    if (analise && analise.necessidades) {
+      document.getElementById('cardsAnalise').classList.remove('hidden');
+
+      const banner = document.getElementById('bannerFechamento');
+      const tit = document.getElementById('tituloFechamento');
+      const desc = document.getElementById('descFechamento');
+      const val = document.getElementById('valorFechamento');
+      const tagExtra = document.getElementById('tagReceitaExtra');
+      banner.classList.remove('hidden');
+
+      // Tag Informativa de Renda Extra acumulada
+      if (analise.receita_extra > 0) {
+        tagExtra.textContent = `+ R$ ${analise.receita_extra.toFixed(2)} de Receita Extra no mês`;
+        tagExtra.classList.remove('hidden');
+      } else {
+        tagExtra.classList.add('hidden');
+      }
+
+      // --- 1. BANNER PRINCIPAL (PARTE 1: Planejamento) ---
+      if (analise.status_orcamento === "vermelho") {
+        banner.className = "p-4 rounded-xl bg-rose-950/60 border border-rose-500 text-rose-200 flex flex-col md:flex-row justify-between items-center gap-2";
+        tit.textContent = "⚠️ Metas Superam o Salário Base";
+        desc.textContent = "O total das metas planejadas ultrapassa a renda fixa. Será necessária renda extra.";
+        val.textContent = `- R$ ${Math.abs(analise.saldo_livre).toFixed(2)}`;
+        val.className = "text-2xl font-black text-rose-400";
+      } else if (analise.status_orcamento === "amarelo") {
+        banner.className = "p-4 rounded-xl bg-amber-950/60 border border-amber-500 text-amber-200 flex flex-col md:flex-row justify-between items-center gap-2";
+        tit.textContent = "⚠️ Fora da Proporção 50/30/20";
+        desc.textContent = "As metas cabem no salário base, mas a divisão foge da regra recomendada.";
+        val.textContent = `Sobra: R$ ${analise.saldo_livre.toFixed(2)}`;
+        val.className = "text-2xl font-black text-amber-400";
+      } else if (analise.saldo_livre > 0) {
+        banner.className = "p-4 rounded-xl bg-blue-950/60 border border-blue-500 text-blue-200 flex flex-col md:flex-row justify-between items-center gap-2";
+        tit.textContent = "💡 Saldo Livre Disponível";
+        desc.textContent = "Existe um valor no Salário Base que não foi atribuído a nenhuma meta.";
+        val.textContent = `+ R$ ${analise.saldo_livre.toFixed(2)}`;
+        val.className = "text-2xl font-black text-blue-400";
+      } else {
+        banner.className = "p-4 rounded-xl bg-emerald-950/60 border border-emerald-500 text-emerald-200 flex flex-col md:flex-row justify-between items-center gap-2";
+        tit.textContent = "🎯 Planejamento Perfeito";
+        desc.textContent = "100% da sua renda base foi alocada com precisão seguindo a regra 50/30/20.";
+        val.textContent = "R$ 0,00";
+        val.className = "text-2xl font-black text-emerald-400";
+      }
+
+      // --- 2. BADGE DE STATUS NO TOPO (PARTE 1: Planejamento) ---
+      const statusBadge = document.getElementById('statusPlanejamento');
+      if (analise.status_orcamento === "vermelho") {
+        statusBadge.textContent = "Metas > Salário";
+        statusBadge.className = "text-xs bg-rose-500/20 text-rose-400 font-bold px-3 py-1 rounded-full border border-rose-500/30";
+      } else if (analise.status_orcamento === "amarelo") {
+        statusBadge.textContent = "Fora da Regra 50/30/20";
+        statusBadge.className = "text-xs bg-amber-500/20 text-amber-400 font-bold px-3 py-1 rounded-full border border-amber-500/30";
+      } else {
+        statusBadge.textContent = "Planejamento Saudável";
+        statusBadge.className = "text-xs bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded-full border border-emerald-500/30";
+      }
+
+      // --- 3. CARDS DE PILARES (PARTE 2: Execução dos Gastos) ---
+      const atualizarPilar = (valId, progId, barId, badgeId, dados) => {
+        const bar = document.getElementById(barId);
+        const badge = document.getElementById(badgeId);
+        const progText = document.getElementById(progId);
+
+        document.getElementById(valId).textContent = `Teto: R$ ${dados.limite.toFixed(2)}`;
+
+        const pctUso = dados.limite > 0 ? Math.min((dados.gasto / dados.limite) * 100, 100) : 0;
+        bar.style.width = `${pctUso}%`;
+
+        const pctRendaText = dados.porcentagem !== undefined ? ` (${dados.porcentagem}% da renda)` : '';
+
+        // Lê diretamente o status enviado pelo backend para o pilar
+        if (dados.status === "verde") {
+          progText.textContent = `Gasto: R$ ${dados.gasto.toFixed(2)}${pctRendaText} / Meta: R$ ${dados.limite.toFixed(2)}`;
+          progText.className = "text-xs text-slate-400";
+          badge.textContent = "OK";
+          badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+          bar.className = "bg-emerald-500 h-2 rounded-full transition-all duration-700";
+        } else if (dados.status === "amarelo") {
+          const excesso = dados.gasto - dados.limite;
+          progText.textContent = `Excedeu R$ ${excesso.toFixed(2)}${pctRendaText} (Abatido da Extra)`;
+          progText.className = "text-xs text-amber-400 font-semibold";
+          badge.textContent = "USOU EXTRA";
+          badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30";
+          bar.className = "bg-amber-500 h-2 rounded-full transition-all duration-700";
+        } else {
+          const excesso = dados.gasto - dados.limite;
+          progText.textContent = `Estourou R$ ${excesso.toFixed(2)}${pctRendaText} (Sem Cobertura)`;
+          progText.className = "text-xs text-rose-400 font-bold";
+          badge.textContent = "ESTOUROU";
+          badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30";
+          bar.className = "bg-rose-500 h-2 rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(244,63,94,0.5)]";
+        }
+      };
+
+      atualizarPilar('valNec', 'progNec', 'barNec', 'badgeNec', analise.necessidades);
+      atualizarPilar('valDes', 'progDes', 'barDes', 'badgeDes', analise.desejos);
+      atualizarPilar('valFut', 'progFut', 'barFut', 'badgeFut', analise.futuro);
+    }
+
+    // --- 4. HISTÓRICO DE TRANSAÇÕES ---
+    const listaDiv = document.getElementById('listaTransacoes');
+    document.getElementById('qtdTransacoes').textContent = `(${transacoes.length} lançamentos)`;
+
+    if (transacoes.length === 0) {
+      listaDiv.innerHTML = `<p class="text-xs text-slate-500 italic">Nenhum lançamento registrado ainda.</p>`;
+    } else {
+      listaDiv.innerHTML = transacoes.slice().reverse().map(t => {
+        const isReceita = t.categoria === "Receita";
+        const corValor = isReceita ? "text-emerald-400" : "text-rose-400";
+        const sinal = isReceita ? "+" : "-";
+
+        return `
+          <div class="p-3 bg-slate-900 rounded-lg border border-slate-700/60 flex justify-between items-center text-xs">
+            <div>
+              <p class="font-bold text-slate-200">${t.descricao}</p>
+              <span class="text-[10px] text-violet-400 font-medium">${t.categoria}</span>
+            </div>
+            <span class="font-extrabold ${corValor}">${sinal} R$ ${parseFloat(t.valor).toFixed(2)}</span>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  async function confirmarReset() {
+    const confirmacao = confirm("🚨 TEM CERTEZA? Isso vai apagar TODAS as suas metas e lançamentos. Essa ação não pode ser desfeita!");
+    
+    if (confirmacao) {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/reset/', {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          alert("Tudo zerado! Você está pronto para um novo começo. 🚀");
+          window.location.reload(); 
+        } else {
+          alert("Erro ao resetar os dados.");
+        }
+      } catch (error) {
+        console.error("Erro:", error);
+        alert("Não foi possível conectar com o servidor.");
+      }
+    }
+  }
+
+  async function carregarDadosCompletos() {
+    if (!USUARIO_ID || USUARIO_ID === "null") return;
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/usuarios/${USUARIO_ID}/metas/`);
+      if (response.ok) {
+        const data = await response.json();
+        renderizarAnalise(data.metas, data.analise, data.transacoes);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function salvarPlanejamento() {
+    const payload = {
+      metas: [
+        { categoria: "Receita", valor_limite: parseFloat(document.getElementById('inputReceita').value) || 0 },
+        { categoria: "Despesa Fixa", valor_limite: parseFloat(document.getElementById('inputNecessidades').value) || 0 },
+        { categoria: "Despesa Variável", valor_limite: parseFloat(document.getElementById('inputVariaveis').value) || 0 },
+        { categoria: "Despesa Adicional", valor_limite: parseFloat(document.getElementById('inputDesejos').value) || 0 },
+        { categoria: "Investimento", valor_limite: parseFloat(document.getElementById('inputInvestimentos').value) || 0 }
+      ]
+    };
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/usuarios/${USUARIO_ID}/setup-inicial/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        renderizarAnalise(data.metas, data.analise, data.transacoes);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function enviarIA() {
+    const textoInput = document.getElementById('textoIA');
+    const btnIA = document.getElementById('btnIA');
+    const texto = textoInput.value.trim();
+    if (!texto) return;
+
+    btnIA.innerHTML = `<span class="animate-pulse">Registrando...</span>`;
+    btnIA.disabled = true;
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/usuarios/${USUARIO_ID}/transacao-ia/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texto })
+      });
+      
+      if (response.ok) {
+        textoInput.value = '';
+        await carregarDadosCompletos();
+      } else {
+        alert("Erro ao registrar lançamento.");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      btnIA.innerHTML = `<span>Enviar</span>`;
+      btnIA.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
