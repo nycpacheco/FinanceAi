@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from .models import TipoCategoria
 
-# 1. Usuário (Sem alterações)
+# 1. Usuário 
 class UsuarioCreate(BaseModel):
     nome: str = Field(..., examples=["Ana Silva"])
     email: str = Field(..., examples=["ana@email.com"])

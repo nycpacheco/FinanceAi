@@ -3,11 +3,11 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-# Importa os módulos do nosso projeto
+# Importa os módulos do projeto
 from . import models, schemas, ai_service, services
 from .database import engine, SessionLocal
 
-# Cria as tabelas no banco (incluindo as novas)
+# Cria as tabelas no banco 
 models.Base.metadata.create_all(bind=engine)
 
 # Inicia o app FastAPI

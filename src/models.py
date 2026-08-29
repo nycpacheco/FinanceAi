@@ -4,7 +4,7 @@ import enum
 from datetime import datetime
 from .database import Base
 
-# Nossas categorias continuam as mesmas
+#  Categorias 
 class TipoCategoria(str, enum.Enum):
     RECEITA = "Receita"
     DESPESA_FIXA = "Despesa Fixa"
@@ -19,7 +19,7 @@ class Usuario(Base):
     nome = Column(String, index=True)
     email = Column(String, unique=True, index=True)
 
-    # Relações com as duas novas tabelas
+    # Relações
     metas = relationship("MetaOrcamento", back_populates="usuario")
     transacoes = relationship("Transacao", back_populates="usuario")
 
